@@ -48,14 +48,49 @@ def shutdown(mode):
     elif mode == "quit":
         bpy.ops.wm.quit_blender()
 
-#Operator
+def ShowMessageBox(message = "", title = "Info", icon = "INFO"):
+    def draw(self, context):
+        self.layout.label(text = message)
+
+    context.window_manager.popup_menu(draw, title = title, icon = icon)
+
+########## Operators ##########
 class CancelShutdown(bpy.types.Operator):
     bl_idname = "wd.cancel_shutdown"
     bl_label = "Cancel Shutdown"
 
+    @classmethod
+    def description(cls, context, properties):
+        return "Cancel the shutdown"
+    
     def execute(self, context):
         subprocess.call(["shutdown", "-a"])
         bpy.types.WindowManager.shutdown_in_process = False
+        print("Shutdown cancelled!")
+        return {'FINISHED'}
+
+class RenderStillToOutput(bpy.types.Operator):
+    bl_idname = "wd.render_still"
+    bl_label = "Render Image to Output-Folder"
+
+    @classmethod
+    def description(cls, context, properties):
+        return "Saves the rendered image automatically to the output folder"
+
+    def execute(self, context):
+        bpy.ops.render.render('INVOKE_DEFAULT', animation=False, write_still=True)
+        return {'FINISHED'}
+
+class RenderAnimation(bpy.types.Operator):
+    bl_idname = "wd.render_animation"
+    bl_label = "Render Animation to Output-Folder"
+
+    @classmethod
+    def description(cls, context, properties):
+        return "Renders the animation automatically to the output folder (SAME AS DEFAULT)"
+
+    def execute(self, context):
+        bpy.ops.render.render('INVOKE_DEFAULT',animation=True)
         return {'FINISHED'}
 
 ########## HANDLERS ##########
@@ -75,22 +110,18 @@ def render_init(scene):
         ShowMessageBox("Shutdown-after-Render is active!", "REMINDER", "QUIT")
 
 
-########## UI ##########
+########## PANELS ##########
 
-def ShowMessageBox(message = "", title = "Info", icon = "INFO"):
-    def draw(self, context):
-        self.layout.label(text = message)
-
-    context.window_manager.popup_menu(draw, title = title, icon = icon)
-
-# MAIN PANEL
-class ShutdownPanel(bpy.types.Panel):
+# Location Panel
+class ShutdownPanelContainer():
     """Creates a Panel in the Output properties window"""
-    bl_idname = 'OUTPUT_PT_shutdownpanel'
-    bl_label = 'Shutdown after Render'
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
-    bl_context = "output"
+    bl_context = 'output'
+# MAIN PANEL
+class ShutdownPanel(ShutdownPanelContainer, bpy.types.Panel):
+    bl_idname = 'OUTPUT_PT_shutdownpanel'
+    bl_label = 'Shutdown after Render'
 
     def draw_header(self,context):
         # Example property to display a checkbox, can be anything
@@ -112,6 +143,7 @@ class ShutdownPanel(bpy.types.Panel):
 
         if context.window_manager.shutdown_in_process:
             row = layout.row()
+            row = layout.row()
             row.alignment = 'CENTER'
             row.label(text="Shutdown in process...")
             row = layout.row()
@@ -119,22 +151,49 @@ class ShutdownPanel(bpy.types.Panel):
             row.operator('wd.cancel_shutdown', text="CANCEL SHUTDOWN", icon='CANCEL')
         else:
             row = layout.row()
+        pass
+
+#Extras Panel
+class ShutdownExtrasPanel(ShutdownPanelContainer, bpy.types.Panel):
+    bl_parent_id = 'OUTPUT_PT_shutdownpanel'
+    bl_label = 'Extras'
+
+    def draw(self, context):
+        layout = self.layout
+        split = layout.split(factor=.05)
+        col = split.column()
+        col = split.column()
+        row = col.row()
+        row.operator('wd.render_still', text="Render Image to Output Folder", icon='RENDER_STILL')
+        row = col.row()
+        row.operator('wd.render_animation', text="Render Animation to Output Folder", icon='RENDER_ANIMATION')
 
 
 
 ########## REGISTRATION ##########
 
+classes = (
+    ShutdownPanel,
+    ShutdownExtrasPanel,
+    CancelShutdown,
+    RenderStillToOutput,
+    RenderAnimation)
+
 def register():
-    bpy.utils.register_class(ShutdownPanel)
+    # Handlers
     bpy.app.handlers.render_init.append(render_init)
     bpy.app.handlers.render_complete.append(render_complete)
-    bpy.utils.register_class(CancelShutdown)
+
+    for cls in classes:
+        bpy.utils.register_class(cls)
 
 def unregister():
-    bpy.utils.unregister_class(ShutdownPanel)
+    # Handlers
     bpy.app.handlers.render_init.remove(render_init)
     bpy.app.handlers.render_complete.remove(render_complete)
-    bpy.utils.unregister_class(CancelShutdown)
+
+    for cls in classes:
+        bpy.utils.unregister_class(cls)
 
 if __name__ == "__main__":
     register()
