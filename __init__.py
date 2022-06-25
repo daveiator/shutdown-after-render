@@ -2,11 +2,11 @@
 
 bl_info = {
     "name": "Shutdown after Render",
-    "version": (0, 1, 0),
+    "version": (0, 2, 0),
     "author": "David Bühler",
     "blender": (3, 0, 0),
     "description": "Shuts down your PC after your render finishes",
-    "location": "Properties > Auto-Shutdown",
+    "location": "Properties > Output > Shutdown after Render",
     # "doc_url": "",
     "category": "System",
 }
