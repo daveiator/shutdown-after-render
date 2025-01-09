@@ -1,6 +1,5 @@
 ![blenderaddon_badge](https://img.shields.io/badge/-Blender%20Addon-%23eb7700)
 ![size_badge](https://img.shields.io/github/repo-size/daveiator/shutdown-after-render?label=Size)
-![licence_badge](https://img.shields.io/github/license/daveiator/shutdown-after-render)
 
 # Shutdown after Render
 
@@ -9,10 +8,7 @@ A addon for Blender which shuts down your PC after your render finishes.
 
 
 ## Panel location:
-The Panel is located in the __Output Properties__ _(Properties > Output > Shutdown after Render)_:
-
-
-![panel location](https://user-images.githubusercontent.com/43887102/175784792-e523f098-4051-45ff-9f80-ed10acca620d.png)
+The Panel is located in the __Render Properties__ _(Properties > Render > Shutdown after Render)_:
 
 ## Usage:
 
@@ -47,9 +43,5 @@ For some reason Blender doesn't safe rendered stills automatically to the output
 
 There are currently no new features planned for this project . However, Issue reports, contributions or ideas are welcome! :)
 
-## License
-
-MIT License Please see LICENSE for details.
-
-## ⚠️
-The shutdown commands are only guarranteed to work on Windows. Linux and MacOS have not been tested! Maybe it works, maybe not. I only plan on using this addon on Windows, but if you have another OS and it doesn't work, please file an Issue! 
+## Custom Commands
+The commands used for shutdown, hiberation and canceling the shutdown can be customized in the __Addon Preferences__: 

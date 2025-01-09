@@ -2,12 +2,12 @@
 
 bl_info = {
     "name": "Shutdown after Render",
-    "version": (0, 2, 0),
+    "version": (0, 3, 0),
     "author": "David Bühler",
-    "blender": (3, 0, 0),
-    "description": "Shuts down your PC after your render finishes",
-    "location": "Properties > Output > Shutdown after Render",
-    # "doc_url": "",
+    "blender": (4, 3, 0),
+    "description": "Automatically shuts down your PC after your render finishes",
+    "location": "Properties > Render > Shutdown after Render",
+    "doc_url": "https://github.com/daveiator/shutdown-after-render",
     "category": "System",
 }
 
@@ -35,36 +35,64 @@ bpy.types.WindowManager.shutdown_modes = bpy.props.EnumProperty(
     ]
 )
 
+########## ENVIRONMENT ##########
+
+class AddonPreferences(bpy.types.AddonPreferences):
+    bl_idname = __name__
+
+    # Shutdown command
+    shutdown_command: bpy.props.StringProperty(
+        name = "Shutdown Command",
+        default = "shutdown /s /t 60",
+    )
+
+    # Hibernate command
+    hibernate_command: bpy.props.StringProperty(
+        name = "Hibernate Command",
+        default = "shutdown /h",
+    )
+
+    # Abort command
+    abort_command: bpy.props.StringProperty(
+        name = "Abort Command",
+        default = "shutdown /a",
+    )
+
+    def draw(self, context):
+        layout = self.layout
+        layout.label(text="Shutdown Command:")
+        layout.prop(self, "shutdown_command", text="")
+        layout.label(text="Hibernate Command:")
+        layout.prop(self, "hibernate_command", text="")
+        layout.label(text="Abort Command:")
+        layout.prop(self, "abort_command", text="")
 
 ########## FUNCTIONS ##########
 
 def shutdown(mode):
-    extra_time = "60"
     if mode == "shutdown":
-        subprocess.call(["shutdown", "-s", "-t", extra_time])
+        shutdown_command = bpy.context.preferences.addons[__name__].preferences.shutdown_command
+        subprocess.run(shutdown_command)
         bpy.types.WindowManager.shutdown_in_process = True
     elif mode == "hibernate":
-        subprocess.call(["shutdown", "-h", "-t", extra_time])
+        hibernate_command = bpy.context.preferences.addons[__name__].preferences.hibernate_command
+        subprocess.run(hibernate_command)
+        bpy.types.WindowManager.shutdown_in_process = True
     elif mode == "quit":
         bpy.ops.wm.quit_blender()
-
-def ShowMessageBox(message = "", title = "Info", icon = "INFO"):
-    def draw(self, context):
-        self.layout.label(text = message)
-
-    context.window_manager.popup_menu(draw, title = title, icon = icon)
 
 ########## Operators ##########
 class CancelShutdown(bpy.types.Operator):
     bl_idname = "wd.cancel_shutdown"
     bl_label = "Cancel Shutdown"
-
+ 
     @classmethod
     def description(cls, context, properties):
         return "Cancel the shutdown"
     
     def execute(self, context):
-        subprocess.call(["shutdown", "-a"])
+        abort_command = bpy.context.preferences.addons[__name__].preferences.abort_command
+        subprocess.run(abort_command)
         bpy.types.WindowManager.shutdown_in_process = False
         print("Shutdown cancelled!")
         return {'FINISHED'}
@@ -97,7 +125,6 @@ class RenderAnimation(bpy.types.Operator):
 
 @persistent
 def render_complete(scene):
-    print("Render complete! Checking for shutdown...")
     if bpy.context.window_manager.arm_shutdown:
         print("Shutdown after render enabled!\nShutting down...")
         shutdown(bpy.context.window_manager.shutdown_modes)
@@ -105,23 +132,22 @@ def render_complete(scene):
 
 @persistent
 def render_init(scene):
-    print("Initialized render!")
     if bpy.context.window_manager.arm_shutdown:
-        ShowMessageBox("Shutdown-after-Render is active!", "REMINDER", "QUIT")
+        print("Initialized render! Shutdown after render enabled!")
 
 
 ########## PANELS ##########
 
 # Location Panel
 class ShutdownPanelContainer():
-    """Creates a Panel in the Output properties window"""
+    """Creates a Panel in the Render properties window"""
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
-    bl_context = 'output'
+    bl_context = 'render'
 # MAIN PANEL
-class ShutdownPanel(ShutdownPanelContainer, bpy.types.Panel):
-    bl_idname = 'OUTPUT_PT_shutdownpanel'
+class RENDER_PT_ShutdownPanel(ShutdownPanelContainer, bpy.types.Panel):
     bl_label = 'Shutdown after Render'
+    bl_order = 999
 
     def draw_header(self,context):
         # Example property to display a checkbox, can be anything
@@ -154,8 +180,8 @@ class ShutdownPanel(ShutdownPanelContainer, bpy.types.Panel):
         pass
 
 #Extras Panel
-class ShutdownExtrasPanel(ShutdownPanelContainer, bpy.types.Panel):
-    bl_parent_id = 'OUTPUT_PT_shutdownpanel'
+class RENDER_PT_ShutdownExtrasPanel(ShutdownPanelContainer, bpy.types.Panel):
+    bl_parent_id = 'RENDER_PT_ShutdownPanel'
     bl_label = 'Extras'
 
     def draw(self, context):
@@ -173,8 +199,9 @@ class ShutdownExtrasPanel(ShutdownPanelContainer, bpy.types.Panel):
 ########## REGISTRATION ##########
 
 classes = (
-    ShutdownPanel,
-    ShutdownExtrasPanel,
+    AddonPreferences,
+    RENDER_PT_ShutdownPanel,
+    RENDER_PT_ShutdownExtrasPanel,
     CancelShutdown,
     RenderStillToOutput,
     RenderAnimation)
