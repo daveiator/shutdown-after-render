@@ -2,7 +2,7 @@
 
 bl_info = {
     "name": "Shutdown after Render",
-    "version": (0, 3, 0),
+    "version": (0, 3, 1),
     "author": "David Bühler",
     "blender": (4, 3, 0),
     "description": "Automatically shuts down your PC after your render finishes",
