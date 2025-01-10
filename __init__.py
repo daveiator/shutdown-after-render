@@ -1,4 +1,4 @@
-########## INFO ##########
+# Info
 
 bl_info = {
     "name": "Shutdown after Render",
@@ -12,14 +12,14 @@ bl_info = {
 }
 
 
-########## IMPORTS ##########
+# Imports
 
 import bpy
 from bpy.app.handlers import persistent
 import subprocess
 
 
-########## VARIABLES ##########
+# Variables
 
 bpy.types.WindowManager.arm_shutdown = bpy.props.BoolProperty(default=0)
 bpy.types.WindowManager.shutdown_in_process = bpy.props.BoolProperty(default=0)
@@ -27,15 +27,15 @@ bpy.types.WindowManager.shutdown_in_process = bpy.props.BoolProperty(default=0)
 bpy.types.WindowManager.shutdown_modes = bpy.props.EnumProperty(
     name = "Shutdown Mode",
     default = 0,
-    description = "Choose the shutdown mode",
+    description = "Choose Shutdown Mode",
     items = [
-        ("shutdown", "Shutdown", "Shuts down your PC"),
-        ("hibernate", "Hibernate", "Sets your PC to hibernate"),
+        ("shutdown", "Shutdown", "Shuts down the computer"),
+        ("hibernate", "Hibernate", "Sets the computer to hibernate"),
         ("quit", "Quit Blender", "Closes Blender"),
     ]
 )
 
-########## ENVIRONMENT ##########
+#  Preferences
 
 class AddonPreferences(bpy.types.AddonPreferences):
     bl_idname = __name__
@@ -67,7 +67,7 @@ class AddonPreferences(bpy.types.AddonPreferences):
         layout.label(text="Abort Command:")
         layout.prop(self, "abort_command", text="")
 
-########## FUNCTIONS ##########
+# Functions
 
 def shutdown(mode):
     if mode == "shutdown":
@@ -81,25 +81,25 @@ def shutdown(mode):
     elif mode == "quit":
         bpy.ops.wm.quit_blender()
 
-########## Operators ##########
-class CancelShutdown(bpy.types.Operator):
-    bl_idname = "wd.cancel_shutdown"
-    bl_label = "Cancel Shutdown"
+# Operators
+class AbortShutdown(bpy.types.Operator):
+    bl_idname = 'wd.abort_shutdown'
+    bl_label = 'Abort Shutdown'
  
     @classmethod
     def description(cls, context, properties):
-        return "Cancel the shutdown"
+        return "Abort shutdown"
     
     def execute(self, context):
         abort_command = bpy.context.preferences.addons[__package__].preferences.abort_command
         subprocess.run(abort_command)
         bpy.types.WindowManager.shutdown_in_process = False
-        print("Shutdown cancelled!")
+        print("Shutdown aborted!")
         return {'FINISHED'}
 
 class RenderStillToOutput(bpy.types.Operator):
-    bl_idname = "wd.render_still"
-    bl_label = "Render Image to Output-Folder"
+    bl_idname = 'wd.render_still'
+    bl_label = 'Render Image to Output Folder'
 
     @classmethod
     def description(cls, context, properties):
@@ -110,18 +110,18 @@ class RenderStillToOutput(bpy.types.Operator):
         return {'FINISHED'}
 
 class RenderAnimation(bpy.types.Operator):
-    bl_idname = "wd.render_animation"
-    bl_label = "Render Animation to Output-Folder"
+    bl_idname = 'wd.render_animation'
+    bl_label = 'Render Animation to Output Folder'
 
     @classmethod
     def description(cls, context, properties):
-        return "Renders the animation automatically to the output folder (SAME AS DEFAULT)"
+        return "Renders the animation automatically to the output folder"
 
     def execute(self, context):
         bpy.ops.render.render('INVOKE_DEFAULT',animation=True)
         return {'FINISHED'}
 
-########## HANDLERS ##########
+# Handlers
 
 @persistent
 def render_complete(scene):
@@ -136,21 +136,20 @@ def render_init(scene):
         print("Initialized render! Shutdown after render enabled!")
 
 
-########## PANELS ##########
+# Panels
 
 # Location Panel
 class ShutdownPanelContainer():
-    """Creates a Panel in the Render properties window"""
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
     bl_context = 'render'
-# MAIN PANEL
+
+# Main Panel  
 class RENDER_PT_ShutdownPanel(ShutdownPanelContainer, bpy.types.Panel):
-    bl_label = 'Shutdown after Render'
+    bl_label = "Shutdown After Render"
     bl_order = 999
 
     def draw_header(self,context):
-        # Example property to display a checkbox, can be anything
         layout = self.layout
         layout.prop(context.window_manager, 'arm_shutdown', text='', icon='QUIT')
 
@@ -171,38 +170,34 @@ class RENDER_PT_ShutdownPanel(ShutdownPanelContainer, bpy.types.Panel):
             row = layout.row()
             row = layout.row()
             row.alignment = 'CENTER'
-            row.label(text="Shutdown in process...")
+            row.label(text="Shutdown in progress...")
             row = layout.row()
-            row.alignment = 'CENTER'
-            row.operator('wd.cancel_shutdown', text="CANCEL SHUTDOWN", icon='CANCEL')
+            row.operator('wd.abort_shutdown', text="Abort Shutdown", icon='CANCEL')
         else:
             row = layout.row()
         pass
 
-#Extras Panel
+# Extras Panel
 class RENDER_PT_ShutdownExtrasPanel(ShutdownPanelContainer, bpy.types.Panel):
     bl_parent_id = 'RENDER_PT_ShutdownPanel'
     bl_label = 'Extras'
 
     def draw(self, context):
         layout = self.layout
-        split = layout.split(factor=.05)
-        col = split.column()
-        col = split.column()
-        row = col.row()
+        row = layout.row()
         row.operator('wd.render_still', text="Render Image to Output Folder", icon='RENDER_STILL')
-        row = col.row()
+        row = layout.row()
         row.operator('wd.render_animation', text="Render Animation to Output Folder", icon='RENDER_ANIMATION')
 
 
 
-########## REGISTRATION ##########
+# Register
 
 classes = (
     AddonPreferences,
     RENDER_PT_ShutdownPanel,
     RENDER_PT_ShutdownExtrasPanel,
-    CancelShutdown,
+    AbortShutdown,
     RenderStillToOutput,
     RenderAnimation)
 
@@ -222,5 +217,5 @@ def unregister():
     for cls in classes:
         bpy.utils.unregister_class(cls)
 
-if __name__ == "__main__":
+if __package__ == "__main__":
     register()
