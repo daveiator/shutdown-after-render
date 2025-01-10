@@ -2,7 +2,7 @@
 
 bl_info = {
     "name": "Shutdown after Render",
-    "version": (0, 3, 1),
+    "version": (0, 3, 2),
     "author": "David Bühler",
     "blender": (4, 3, 0),
     "description": "Automatically shuts down your PC after your render finishes",
@@ -71,11 +71,11 @@ class AddonPreferences(bpy.types.AddonPreferences):
 
 def shutdown(mode):
     if mode == "shutdown":
-        shutdown_command = bpy.context.preferences.addons[__name__].preferences.shutdown_command
+        shutdown_command = bpy.context.preferences.addons[__package__].preferences.shutdown_command
         subprocess.run(shutdown_command)
         bpy.types.WindowManager.shutdown_in_process = True
     elif mode == "hibernate":
-        hibernate_command = bpy.context.preferences.addons[__name__].preferences.hibernate_command
+        hibernate_command = bpy.context.preferences.addons[__package__].preferences.hibernate_command
         subprocess.run(hibernate_command)
         bpy.types.WindowManager.shutdown_in_process = True
     elif mode == "quit":
@@ -91,7 +91,7 @@ class CancelShutdown(bpy.types.Operator):
         return "Cancel the shutdown"
     
     def execute(self, context):
-        abort_command = bpy.context.preferences.addons[__name__].preferences.abort_command
+        abort_command = bpy.context.preferences.addons[__package__].preferences.abort_command
         subprocess.run(abort_command)
         bpy.types.WindowManager.shutdown_in_process = False
         print("Shutdown cancelled!")
