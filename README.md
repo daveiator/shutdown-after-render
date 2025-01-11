@@ -1,9 +1,6 @@
-![blenderaddon_badge](https://img.shields.io/badge/-Blender%20Addon-%23eb7700)
-![size_badge](https://img.shields.io/github/repo-size/daveiator/shutdown-after-render?label=Size)
-
 # Shutdown after Render
 
-A addon for Blender which shuts down your PC after your render finishes.
+Automatically shuts down your PC after your render finishes.
 
 
 
@@ -14,34 +11,34 @@ The Panel is located in the __Render Properties__ _(Properties > Render > Shutdo
 
 To activate the shutdown after render function, simply press the __Power-Icon__ at the top of the panel:
 
-![panel activate](https://user-images.githubusercontent.com/43887102/175784819-ba01a5c6-93b9-4930-b8a8-cc21ac4cb6db.png)
+![panel_activate](https://github.com/user-attachments/assets/7961ab77-7614-4b17-95f8-14f3e1352ba7)
+
 
 ### Shutdown-Type
-After that you will have acces to the Dropdown-List which lets you specify the exact shutdown type.
+Choose your desired action in the Dropdown-List.
 The options are:
-* Shutdown (DEFAULT)
+* Shutdown (default)
   - Shuts down your PC completely.
 
 * Hibernate
   - Shuts down your PC, but puts remembers the state of all open applications, and reopens them once you start your PC again.
   
 * Quit
-  - This just quits Blender.
+  - Quits the Blender application.
 
-### Extras
-Also included in this plugin is this extra section:
+### Important!
 
-![extra_section](https://user-images.githubusercontent.com/43887102/175785330-ff3d725c-6594-4cdb-8488-21d1e19e1c09.png)
+Blender doesn't automatically safe rendered stills to the output-folder, like with animations. This is not optimal, especially when you want to shutdown your PC.
 
-For some reason Blender doesn't safe rendered stills automatically to the output-folder, like with animations. This is not optimal, especially when you want to shutdown your PC.
+For this reason the addon comes with an addidtional render button in the **render top menu**:
 
-* __"Render Image to Output Folder"__  does exactly that and should be used if you want to render stills with __"Shutdown after Render"__ enabled.  _(The __"File Output"__ node in the compositor is also a great alternative.)_
+![render_panel](https://github.com/user-attachments/assets/d752e10e-7b6b-4526-9fab-91e8ebe7a63b)
 
-* __"Render Animation to Output Folder"__ works exactly like the default __"Render Animation"__ button and is only here for completeness.
+*Render Image to Disk*
 
-## Support
+It simply renders the active scene like normal, but saves the image afterwards to the path specified in the **Output Properties**
 
-There are currently no new features planned for this project . However, Issue reports, contributions or ideas are welcome! :)
+Another option would be to use the "**File Output**"-Node in the compositor.
 
-## Custom Commands
-The commands used for shutdown, hiberation and canceling the shutdown can be customized in the __Addon Preferences__: 
+### Custom Commands
+The commands used for shutdown, hiberation and canceling the shutdown can be customized in the **Addon Preferences**: 
