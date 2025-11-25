@@ -2,7 +2,7 @@
 
 bl_info = {
     "name": "Shutdown after Render",
-    "version": (0, 3, 2),
+    "version": (0, 4, 0),
     "author": "David Bühler",
     "blender": (4, 3, 0),
     "description": "Automatically shuts down your PC after your render finishes",
@@ -63,7 +63,7 @@ class AddonPreferences(bpy.types.AddonPreferences):
         layout.prop(self, 'shutdown_command', text = "Shutdown Command")
         layout.prop(self, 'hibernate_command', text = "Hibernate Command")
         layout.prop(self, 'abort_command', text = "Abort Command")
-        
+
 
 # Functions
 
