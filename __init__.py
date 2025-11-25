@@ -60,12 +60,10 @@ class AddonPreferences(bpy.types.AddonPreferences):
 
     def draw(self, context):
         layout = self.layout
-        layout.label(text = "Shutdown Command:")
-        layout.prop(self, 'shutdown_command', text = "")
-        layout.label(text = "Hibernate Command:")
-        layout.prop(self, 'hibernate_command', text = "")
-        layout.label(text = "Abort Command:")
-        layout.prop(self, 'abort_command', text = "")
+        layout.prop(self, 'shutdown_command', text = "Shutdown Command")
+        layout.prop(self, 'hibernate_command', text = "Hibernate Command")
+        layout.prop(self, 'abort_command', text = "Abort Command")
+        
 
 # Functions
 
@@ -148,26 +146,16 @@ class RENDER_PT_ShutdownPanel(ShutdownPanelContainer, bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-        row = layout.row()
-        row.enabled = context.window_manager.arm_shutdown
-        split = row.split(factor=.4)
-        col = split.column()
-        col.alignment = 'RIGHT'
-        col.label(text='Type')
-
-        col = split.column()
-        col.prop(context.window_manager, 'shutdown_modes', text = '', icon = 'NONE')
+        layout.use_property_split = True
+        layout.enabled = context.window_manager.arm_shutdown
+        layout.prop(context.window_manager, 'shutdown_modes', text = 'Type', icon = 'NONE')
 
         if context.window_manager.shutdown_in_process:
-            row = layout.row()
             row = layout.row()
             row.alignment = 'CENTER'
             row.label(text="Shutdown in progress...")
             row = layout.row()
             row.operator('wd.abort_shutdown', text="Abort Shutdown", icon='CANCEL')
-        else:
-            row = layout.row()
-        pass
 
 # Register
 
