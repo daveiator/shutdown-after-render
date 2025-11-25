@@ -72,11 +72,11 @@ class AddonPreferences(bpy.types.AddonPreferences):
 def shutdown(mode):
     if mode == 'shutdown':
         shutdown_command = bpy.context.preferences.addons[__package__].preferences.shutdown_command
-        subprocess.run(shutdown_command)
+        subprocess.run(shutdown_command, shell = True)
         bpy.types.WindowManager.shutdown_in_process = True
     elif mode == 'hibernate':
         hibernate_command = bpy.context.preferences.addons[__package__].preferences.hibernate_command
-        subprocess.run(hibernate_command)
+        subprocess.run(hibernate_command, shell = True)
         bpy.types.WindowManager.shutdown_in_process = True
     elif mode == 'quit':
         bpy.ops.wm.quit_blender()
