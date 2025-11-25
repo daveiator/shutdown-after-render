@@ -3,7 +3,7 @@ schema_version = "1.0.0"
 # Example of manifest file for a Blender extension
 # Change the values according to your extension
 id = "shutdown_after_render"
-version = "0.3.2"
+version = "0.4.0"
 name = "Shutdown after render"
 tagline = "Automatically shuts down your PC after your render finishes"
 maintainer = "David Bühler <david@buehler-online.de>"
